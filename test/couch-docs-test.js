@@ -7,6 +7,7 @@ const DbdbCouch = require('../lib/couchdb');
 function clearData() {
   DbdbCouch.data.clear();
 }
+
 // Tests -- get document
 
 test('db.get', (t) => {
