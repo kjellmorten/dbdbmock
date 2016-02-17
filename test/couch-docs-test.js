@@ -4,6 +4,9 @@ const test = require('blue-tape');
 
 const DbdbCouch = require('../lib/couchdb');
 
+function clearData() {
+  DbdbCouch.data.clear();
+}
 // Tests -- get document
 
 test('db.get', (t) => {
@@ -29,6 +32,8 @@ test('db.get return', (t) => {
     t.equal(obj.id, 'doc1', 'should have id');
     t.equal(obj.type, 'entry', 'should have type');
     t.equal(obj.title, 'The title', 'should have title');
+
+    clearData();
   });
 });
 
@@ -81,6 +86,8 @@ test('db.insert insert new document', (t) => {
 
     return db.get('doc2').then((newdoc) => {
       t.equal(newdoc, doc, 'should be in data store');
+
+      clearData();
     });
   });
 });
@@ -93,6 +100,8 @@ test('db.insert insert and get id from database', (t) => {
 
   .then((obj) => {
     t.equal(typeof obj.id, 'string', 'should return new id');
+
+    clearData();
   });
 });
 
@@ -145,6 +154,8 @@ test('db.update update document', (t) => {
     return db.get('doc1')
     .then((newobj) => {
       t.deepEqual(newobj, obj, 'should be in data store');
+
+      clearData();
     });
   });
 });
