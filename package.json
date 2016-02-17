@@ -1,0 +1,36 @@
+{
+  "name": "dbdbmock",
+  "version": "1.0.0",
+  "description": "Mocked version of dbdb, for testing.",
+  "author": "Kjell-Morten Bratsberg Thorsen <post@kjellmorten.no>",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test/**/*-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kjellmorten/dbdbmock.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kjellmorten/dbdbmock/issues"
+  },
+  "homepage": "https://github.com/kjellmorten/dbdbmock#readme",
+  "directories": {
+    "lib": "./lib"
+  },
+  "engines": {
+    "node": "5.6.x",
+    "npm": ">= 3.3.12"
+  },
+  "devDependencies": {
+    "blue-tape": "^0.2.0",
+    "gulp": "^3.9.1",
+    "gulp-env": "^0.4.0",
+    "gulp-eslint": "^1.1.1",
+    "gulp-tape": "0.0.7",
+    "sinon": "^1.17.3",
+    "tap-min": "^1.1.0",
+    "tape": "^4.4.0"
+  }
+}
