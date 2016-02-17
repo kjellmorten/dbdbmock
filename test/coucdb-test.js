@@ -21,6 +21,11 @@ test('DbdbCouch.isMock', (t) => {
   t.end();
 });
 
+test('DbdbCouch.data', (t) => {
+  t.ok(DbdbCouch.data instanceof Map, 'should be a Map');
+  t.end();
+});
+
 // Tests -- database connection
 
 test('db.connect', (t) => {
