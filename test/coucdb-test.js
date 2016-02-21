@@ -12,7 +12,14 @@ test('DbdbCouch', (t) => {
 });
 
 test('DbdbCouch.dbType', (t) => {
-  t.equal(DbdbCouch.dbType, 'couchdb', 'should be "couchdb"');
+  t.equal(DbdbCouch.dbType, 'couchdb', 'should be couchdb');
+  t.end();
+});
+
+test('db.dbType', (t) => {
+  let db = new DbdbCouch();
+
+  t.equal(db.dbType, 'couchdb', 'should be couchdb');
   t.end();
 });
 
@@ -21,8 +28,23 @@ test('DbdbCouch.isMock', (t) => {
   t.end();
 });
 
+test('db.isMock', (t) => {
+  let db = new DbdbCouch();
+
+  t.ok(db.isMock, 'should be true');
+  t.end();
+});
+
 test('DbdbCouch.data', (t) => {
   t.ok(DbdbCouch.data instanceof Map, 'should be a Map');
+  t.end();
+});
+
+test('db.config', (t) => {
+  let config = {};
+  let db = new DbdbCouch(config);
+
+  t.equal(db.config, config, 'should be set on creation');
   t.end();
 });
 
