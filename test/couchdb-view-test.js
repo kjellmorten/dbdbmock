@@ -15,6 +15,19 @@ function setupData() {
   return view;
 }
 
+function setupFnsEntriesBySource() {
+  let view = [
+    { id: 'ent1', key: [ 'src2', '2015-05-23T00:00:00.000Z' ],
+      doc: { _id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1' } },
+    { id: 'ent2', key: [ 'src2', '2015-05-24T00:00:00.000Z' ],
+        doc: { _id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2' } },
+    { id: 'ent3', key: [ 'src1', '2015-05-25T00:00:00.000Z' ],
+        doc: { _id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3' } }
+  ];
+  DbdbCouch.data.set('view:fns:entries_by_source', view);
+  return view;
+}
+
 function teardownData() {
   DbdbCouch.data.clear();
 }
@@ -32,6 +45,19 @@ test('db.getView return', (t) => {
   let view = setupData();
   let db = new DbdbCouch();
 
+  return db.getView('fns:sources')
+
+  .then((obj) => {
+    t.equal(obj, view, 'should return two sources');
+
+    teardownData();
+  });
+});
+
+test('db.getView old signature', (t) => {
+  let view = setupData();
+  let db = new DbdbCouch();
+
   return db.getView('fns', 'sources')
 
   .then((obj) => {
@@ -45,7 +71,7 @@ test('db.getView reverse order', (t) => {
   let view = setupData();
   let db = new DbdbCouch();
 
-  return db.getView('fns', 'sources', true)
+  return db.getView('fns:sources', true)
 
   .then((obj) => {
     t.equal(obj.length, 2, 'should return two items');
@@ -59,7 +85,7 @@ test('db.getView paged view', (t) => {
   setupData();
   let db = new DbdbCouch();
 
-  return db.getView('fns', 'sources', false, 1)
+  return db.getView('fns:sources', false, {}, 1)
 
   .then((obj) => {
     t.equal(obj.length, 1, 'should have one item');
@@ -73,7 +99,35 @@ test('db.getView second page', (t) => {
   setupData();
   let db = new DbdbCouch();
 
-  return db.getView('fns', 'sources', false, 1, 1)
+  return db.getView('fns:sources', false, {}, 1, 1)
+
+  .then((obj) => {
+    t.equal(obj.length, 1, 'should have one item');
+    t.equal(obj[0].id, 'src2', 'should have right id');
+
+    teardownData();
+  });
+});
+
+test('db.getView paged view through options', (t) => {
+  setupData();
+  let db = new DbdbCouch();
+
+  return db.getView('fns:sources', false, {pageSize: 1})
+
+  .then((obj) => {
+    t.equal(obj.length, 1, 'should have one item');
+    t.equal(obj[0].id, 'src1', 'should have right id');
+
+    teardownData();
+  });
+});
+
+test('db.getView second page through options', (t) => {
+  setupData();
+  let db = new DbdbCouch();
+
+  return db.getView('fns:sources', false, {pageSize: 1, pageStart: 1})
 
   .then((obj) => {
     t.equal(obj.length, 1, 'should have one item');
@@ -87,7 +141,7 @@ test('db.getView start after specific key', (t) => {
   setupData();
   let db = new DbdbCouch();
 
-  return db.getView('fns', 'sources', false, 1, [ '2015-05-23T00:00:00.000Z', 'src1' ])
+  return db.getView('fns:sources', false, {}, 1, [ '2015-05-23T00:00:00.000Z', 'src1' ])
 
   .then((obj) => {
     t.equal(obj.length, 1, 'should return one item');
@@ -97,10 +151,26 @@ test('db.getView start after specific key', (t) => {
   });
 });
 
+test('db.getView filter', (t) => {
+  setupFnsEntriesBySource();
+  let db = new DbdbCouch();
+
+  return db.getView('fns:entries_by_source', false, {filter: 'src2'})
+
+  .then((obj) => {
+    t.ok(Array.isArray(obj), 'should be array');
+    t.equal(obj.length, 2, 'should have two items');
+    t.equal(obj[0].id, 'ent1', 'should get first first');
+    t.equal(obj[1].id, 'ent2', 'should get second last');
+
+    teardownData();
+  });
+});
+
 test('db.getView no match', (t) => {
   let db = new DbdbCouch();
 
-  return db.getView('fns', 'sources')
+  return db.getView('fns:sources')
 
   .then((obj) => {
     t.ok(Array.isArray(obj), 'should return array');
