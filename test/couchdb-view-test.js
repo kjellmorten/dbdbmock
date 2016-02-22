@@ -6,9 +6,9 @@ const DbdbCouch = require('../lib/couchdb');
 
 function setupData() {
   let view = [
-    {id: 'src1', type: 'source', name: 'Src 1', url: 'http://source1.com',
+    {id: 'src1', type: 'source', name: 'Source 1', url: 'http://source1.com',
       _key: [ '2015-05-23T00:00:00.000Z', 'src1' ]},
-    {id: 'src2', type: 'source', name: 'Src 2', url: 'http://source2.com',
+    {id: 'src2', type: 'source', name: 'Source 2', url: 'http://source2.com',
       _key: [ '2015-05-24T00:00:00.000Z', 'src2' ]}
   ];
   DbdbCouch.data.set('view:fns:sources', view);
@@ -17,12 +17,12 @@ function setupData() {
 
 function setupFnsEntriesBySource() {
   let view = [
-    { id: 'ent1', key: [ 'src2', '2015-05-23T00:00:00.000Z' ],
-      doc: { _id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1' } },
-    { id: 'ent2', key: [ 'src2', '2015-05-24T00:00:00.000Z' ],
-        doc: { _id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2' } },
-    { id: 'ent3', key: [ 'src1', '2015-05-25T00:00:00.000Z' ],
-        doc: { _id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3' } }
+    { id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1',
+      source: 'src2', _key: [ 'src2', '2015-05-23T00:00:00.000Z' ] },
+    { id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2',
+      source: 'src2', _key: [ 'src2', '2015-05-24T00:00:00.000Z' ] },
+    { id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3',
+      source: 'src1', _key: [ 'src1', '2015-05-25T00:00:00.000Z' ] }
   ];
   DbdbCouch.data.set('view:fns:entries_by_source', view);
   return view;
@@ -42,13 +42,17 @@ test('db.getView', (t) => {
 });
 
 test('db.getView return', (t) => {
-  let view = setupData();
+  setupData();
   let db = new DbdbCouch();
 
   return db.getView('fns:sources')
 
   .then((obj) => {
-    t.equal(obj, view, 'should return two sources');
+    t.ok(Array.isArray(obj), 'should be array');
+    t.equal(obj.length, 2, 'should have two items');
+    t.equal(obj[0].id, 'src1', 'should have id');
+    t.equal(obj[0].type, 'source', 'should have type');
+    t.equal(obj[0].name, 'Source 1', 'should have name');
 
     teardownData();
   });
@@ -161,7 +165,9 @@ test('db.getView filter', (t) => {
     t.ok(Array.isArray(obj), 'should be array');
     t.equal(obj.length, 2, 'should have two items');
     t.equal(obj[0].id, 'ent1', 'should get first first');
+    t.equal(obj[0].source, 'src2', 'should get first source');
     t.equal(obj[1].id, 'ent2', 'should get second last');
+    t.equal(obj[1].source, 'src2', 'should get second source');
 
     teardownData();
   });
