@@ -16,11 +16,11 @@ function setupData () {
 function setupFnsEntriesBySource () {
   let view = [
     { id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1',
-      source: 'src2', _key: [ 'src2', '2015-05-23T00:00:00.000Z' ] },
+      source: 'src2', _key: [ 'src2', 'ent1' ] },
     { id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2',
-      source: 'src2', _key: [ 'src2', '2015-05-24T00:00:00.000Z' ] },
+      source: 'src2', _key: [ 'src2', 'ent2' ] },
     { id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3',
-      source: 'src1', _key: [ 'src1', '2015-05-25T00:00:00.000Z' ] }
+      source: 'src1', _key: [ 'src1', 'ent3' ] }
   ]
   DbdbCouch.data.set('view:fns:entries_by_source', view)
   return view
@@ -138,7 +138,7 @@ test.serial('db.getView should start after specific key', (t) => {
   })
 })
 
-test.serial('db.getView should filter results', (t) => {
+test.serial('db.getView should filter results by key', (t) => {
   setupFnsEntriesBySource()
   const db = new DbdbCouch()
 
@@ -151,6 +151,21 @@ test.serial('db.getView should filter results', (t) => {
     t.is(obj[0].source, 'src2')
     t.is(obj[1].id, 'ent2')
     t.is(obj[1].source, 'src2')
+
+    teardownData()
+  })
+})
+
+test.serial('db.getView should filter results by two level key', (t) => {
+  setupFnsEntriesBySource()
+  const db = new DbdbCouch()
+
+  return db.getView('fns:entries_by_source', {filter: 'src2/ent2'})
+
+  .then((obj) => {
+    t.true(Array.isArray(obj))
+    t.is(obj.length, 1)
+    t.is(obj[0].id, 'ent2')
 
     teardownData()
   })
