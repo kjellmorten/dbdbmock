@@ -14,7 +14,7 @@ test('db.insertMany should exist', (t) => {
   t.is(typeof db.insertMany, 'function')
 })
 
-test('db.insertMany should insert new documents', (t) => {
+test.serial('db.insertMany should insert new documents', (t) => {
   let docs = [
     { type: 'entry', title: 'First title' },
     { type: 'entry', title: 'Second title' }

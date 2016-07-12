@@ -38,7 +38,7 @@ test('db.getView should exist', (t) => {
   t.is(typeof db.getView, 'function')
 })
 
-test('db.getView should return items', (t) => {
+test.serial('db.getView should return items', (t) => {
   setupData()
   const db = new DbdbCouch()
 
@@ -55,7 +55,7 @@ test('db.getView should return items', (t) => {
   })
 })
 
-test('db.getView should return items with old signature', (t) => {
+test.serial('db.getView should return items with old signature', (t) => {
   const view = setupData()
   const db = new DbdbCouch()
 
@@ -68,7 +68,7 @@ test('db.getView should return items with old signature', (t) => {
   })
 })
 
-test('db.getView should return items in reversed order', (t) => {
+test.serial('db.getView should return items in reversed order', (t) => {
   const view = setupData()
   const db = new DbdbCouch()
 
@@ -82,7 +82,7 @@ test('db.getView should return items in reversed order', (t) => {
   })
 })
 
-test('db.getView should return paged view', (t) => {
+test.serial('db.getView should return paged view', (t) => {
   setupData()
   const db = new DbdbCouch()
 
@@ -96,7 +96,7 @@ test('db.getView should return paged view', (t) => {
   })
 })
 
-test('db.getView should return second page', (t) => {
+test.serial('db.getView should return second page', (t) => {
   setupData()
   const db = new DbdbCouch()
 
@@ -110,7 +110,7 @@ test('db.getView should return second page', (t) => {
   })
 })
 
-test('db.getView should return paged view through options', (t) => {
+test.serial('db.getView should return paged view through options', (t) => {
   setupData()
   const db = new DbdbCouch()
 
@@ -124,7 +124,7 @@ test('db.getView should return paged view through options', (t) => {
   })
 })
 
-test('db.getView should return second page through options', (t) => {
+test.serial('db.getView should return second page through options', (t) => {
   setupData()
   const db = new DbdbCouch()
 
@@ -138,7 +138,7 @@ test('db.getView should return second page through options', (t) => {
   })
 })
 
-test('db.getView should start after specific key', (t) => {
+test.serial('db.getView should start after specific key', (t) => {
   setupData()
   const db = new DbdbCouch()
 
@@ -152,7 +152,7 @@ test('db.getView should start after specific key', (t) => {
   })
 })
 
-test('db.getView should filter results', (t) => {
+test.serial('db.getView should filter results', (t) => {
   setupFnsEntriesBySource()
   const db = new DbdbCouch()
 

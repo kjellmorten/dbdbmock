@@ -14,7 +14,7 @@ test('db.get should exist', (t) => {
   t.is(typeof db.get, 'function')
 })
 
-test('db.get should return doc', (t) => {
+test.serial('db.get should return doc', (t) => {
   const doc1 = {
     id: 'doc1',
     type: 'entry',
@@ -117,7 +117,7 @@ test('db.update should exist', (t) => {
   t.is(typeof db.update, 'function')
 })
 
-test('db.update should update document', (t) => {
+test.serial('db.update should update document', (t) => {
   const olddoc = {
     id: 'doc1',
     type: 'entry',
