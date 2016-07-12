@@ -72,6 +72,20 @@ test.serial('db.getView should return items in reversed order', (t) => {
   const view = setupData()
   const db = new DbdbCouch()
 
+  return db.getView('fns:sources', {desc: true})
+
+  .then((ret) => {
+    t.is(ret.length, 2)
+    t.is(ret[0], view[1])
+
+    teardownData()
+  })
+})
+
+test.serial('db.getView should return items in reversed order through old signature', (t) => {
+  const view = setupData()
+  const db = new DbdbCouch()
+
   return db.getView('fns:sources', true)
 
   .then((ret) => {
@@ -86,7 +100,7 @@ test.serial('db.getView should return paged view', (t) => {
   setupData()
   const db = new DbdbCouch()
 
-  return db.getView('fns:sources', false, {}, 1)
+  return db.getView('fns:sources', {pageSize: 1})
 
   .then((ret) => {
     t.is(ret.length, 1)
@@ -100,35 +114,7 @@ test.serial('db.getView should return second page', (t) => {
   setupData()
   const db = new DbdbCouch()
 
-  return db.getView('fns:sources', false, {}, 1, 1)
-
-  .then((ret) => {
-    t.is(ret.length, 1)
-    t.is(ret[0].id, 'src2')
-
-    teardownData()
-  })
-})
-
-test.serial('db.getView should return paged view through options', (t) => {
-  setupData()
-  const db = new DbdbCouch()
-
-  return db.getView('fns:sources', false, {pageSize: 1})
-
-  .then((ret) => {
-    t.is(ret.length, 1)
-    t.is(ret[0].id, 'src1')
-
-    teardownData()
-  })
-})
-
-test.serial('db.getView should return second page through options', (t) => {
-  setupData()
-  const db = new DbdbCouch()
-
-  return db.getView('fns:sources', false, {pageSize: 1, pageStart: 1})
+  return db.getView('fns:sources', {pageSize: 1, pageStart: 1})
 
   .then((obj) => {
     t.is(obj.length, 1)
@@ -142,7 +128,7 @@ test.serial('db.getView should start after specific key', (t) => {
   setupData()
   const db = new DbdbCouch()
 
-  return db.getView('fns:sources', false, {}, 1, [ '2015-05-23T00:00:00.000Z', 'src1' ])
+  return db.getView('fns:sources', {pageSize: 1, pageStart: [ '2015-05-23T00:00:00.000Z', 'src1' ]})
 
   .then((obj) => {
     t.is(obj.length, 1)
@@ -156,7 +142,7 @@ test.serial('db.getView should filter results', (t) => {
   setupFnsEntriesBySource()
   const db = new DbdbCouch()
 
-  return db.getView('fns:entries_by_source', false, {filter: 'src2'})
+  return db.getView('fns:entries_by_source', {filter: 'src2'})
 
   .then((obj) => {
     t.true(Array.isArray(obj))
