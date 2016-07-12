@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const couchdb = require('./lib/couchdb');
+const couchdb = require('./lib/couchdb')
 
 module.exports = {
   couchdb: couchdb
-};
+}

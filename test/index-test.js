@@ -1,11 +1,8 @@
-'use strict';
+import test from 'ava'
 
-const test = require('tape');
+import {couchdb} from '../index'
 
-const couchdb = require('../index').couchdb;
-
-test('couchdb', (t) => {
-  t.equal(typeof couchdb, 'function', 'should exist');
-  t.equal(couchdb.dbType, 'couchdb', 'should be couchdb');
-  t.end();
-});
+test('couchdb should exist', (t) => {
+  t.is(typeof couchdb, 'function')
+  t.is(couchdb.dbType, 'couchdb')
+})
