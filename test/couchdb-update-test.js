@@ -6,57 +6,6 @@ function teardownData () {
   DbdbCouch.data.clear()
 }
 
-// Tests -- get document
-
-test('db.get should exist', (t) => {
-  const db = new DbdbCouch()
-
-  t.is(typeof db.get, 'function')
-})
-
-test.serial('db.get should return doc', (t) => {
-  const doc1 = {
-    id: 'doc1',
-    type: 'entry',
-    title: 'The title'
-  }
-  DbdbCouch.data.set('doc1', doc1)
-  const db = new DbdbCouch()
-
-  return db.get('doc1')
-
-  .then((obj) => {
-    t.is(typeof obj, 'object')
-    t.is(obj.id, 'doc1')
-    t.is(obj.type, 'entry')
-    t.is(obj.title, 'The title')
-
-    teardownData()
-  })
-})
-
-test('db.get should throw for non-existing document', (t) => {
-  const db = new DbdbCouch()
-
-  return db.get('doc2')
-
-  .catch((err) => {
-    t.true(err instanceof Error)
-    t.is(typeof err.message, 'string')
-    t.is(err.name, 'NotFoundError')
-  })
-})
-
-test('db.get should throw for missing docid', (t) => {
-  const db = new DbdbCouch()
-
-  return db.get()
-
-  .catch((err) => {
-    t.true(err instanceof Error)
-  })
-})
-
 // Tests -- insert document
 
 test('db.insert should exist', (t) => {
