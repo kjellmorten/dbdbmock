@@ -3,18 +3,21 @@ import test from 'ava'
 import DbdbCouch from '../lib/couchdb'
 
 function setupData (db) {
-  let view = [
+  const view = [
     {id: 'src1', type: 'source', name: 'Source 1', url: 'http://source1.com',
       _key: [ '2015-05-23T00:00:00.000Z', 'src1' ]},
     {id: 'src2', type: 'source', name: 'Source 2', url: 'http://source2.com',
       _key: [ '2015-05-24T00:00:00.000Z', 'src2' ]}
   ]
+  Object.freeze(view)
+  Object.freeze(view[0])
+  Object.freeze(view[1])
   db.data.set('view:fns:sources', view)
   return view
 }
 
 function setupFnsEntriesBySource (db) {
-  let view = [
+  const view = [
     { id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1',
       source: 'src2', _key: [ 'src2', 'ent1' ] },
     { id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2',
@@ -56,7 +59,7 @@ test('db.getView should return items with old signature', (t) => {
   return db.getView('fns', 'sources')
 
   .then((obj) => {
-    t.is(obj, view)
+    t.deepEqual(obj, view)
   })
 })
 
@@ -68,7 +71,7 @@ test('db.getView should return items in reversed order', (t) => {
 
   .then((ret) => {
     t.is(ret.length, 2)
-    t.is(ret[0], view[1])
+    t.deepEqual(ret[0], view[1])
   })
 })
 
@@ -80,7 +83,7 @@ test('db.getView should return items in reversed order through old signature', (
 
   .then((ret) => {
     t.is(ret.length, 2)
-    t.is(ret[0], view[1])
+    t.deepEqual(ret[0], view[1])
   })
 })
 
@@ -149,7 +152,32 @@ test('db.getView should filter results by two level key', (t) => {
   })
 })
 
-test('db.getView should return empty array', (t) => {
+test('db.getView should not alter options object', (t) => {
+  const db = new DbdbCouch()
+  setupData(db)
+  const options = {desc: true}
+  Object.freeze(options)
+
+  return db.getView('fns:sources', options)
+
+  .then((ret) => {
+    t.pass()
+  })
+})
+
+test('db.getView should clone data in view', (t) => {
+  const db = new DbdbCouch()
+  const view = setupData(db)
+
+  return db.getView('fns:sources')
+
+  .then((ret) => {
+    t.not(ret[0], view[0])
+    t.not(ret[1], view[1])
+  })
+})
+
+test('db.getView should return empty array on no results', (t) => {
   const db = new DbdbCouch()
 
   return db.getView('fns:sources')

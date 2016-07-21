@@ -21,11 +21,8 @@ test('db.insert should insert new document', (t) => {
   return db.insert(doc)
 
   .then((obj) => {
-    t.is(obj, doc)
-
-    return db.get('doc2').then((newdoc) => {
-      t.is(newdoc, doc)
-    })
+    t.deepEqual(obj, doc)
+    t.deepEqual(db.data.get('doc2'), doc)
   })
 })
 
@@ -37,6 +34,37 @@ test('db.insert should insert and get id from database', (t) => {
 
   .then((obj) => {
     t.is(typeof obj.id, 'string')
+  })
+})
+
+test('db.insert should not alter input object', (t) => {
+  const doc = {
+    type: 'entry',
+    title: 'New title'
+  }
+  Object.freeze(doc)
+  const db = new DbdbCouch()
+
+  return db.insert(doc)
+
+  .then((obj) => {
+    t.not(obj, doc)
+  })
+})
+
+test('db.insert should store clone of object', (t) => {
+  const doc = {
+    id: 'doc1',
+    type: 'entry',
+    title: 'New title'
+  }
+  const db = new DbdbCouch()
+
+  return db.insert(doc)
+
+  .then((obj) => {
+    t.not(obj, doc)
+    t.not(db.data.get('doc1'), doc)
   })
 })
 
@@ -101,6 +129,21 @@ test('db.update should update document', (t) => {
     .then((newobj) => {
       t.deepEqual(newobj, obj)
     })
+  })
+})
+
+test('db.update should not alter input object', (t) => {
+  const olddoc = {id: 'doc1', title: 'Old title'}
+  const newdoc = {id: 'doc1', title: 'New title'}
+  Object.freeze(olddoc)
+  Object.freeze(newdoc)
+  const db = new DbdbCouch()
+  db.data.set('doc1', olddoc)
+
+  return db.update(newdoc)
+
+  .then((obj) => {
+    t.pass()
   })
 })
 

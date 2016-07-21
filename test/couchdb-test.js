@@ -28,11 +28,12 @@ test('db.isMock should be true', (t) => {
   t.true(db.isMock)
 })
 
-test('should set db.config on creation', (t) => {
+test('should set db.config as a clone of config', (t) => {
   const config = {}
   const db = new DbdbCouch(config)
 
-  t.is(db.config, config)
+  t.not(db.config, config)
+  t.deepEqual(db.config, config)
 })
 
 // Data storage

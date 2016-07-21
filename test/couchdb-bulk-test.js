@@ -56,6 +56,38 @@ test('db.insertMany should return conflict error for existing ids', (t) => {
   })
 })
 
+test('db.insertMany should not alter input objects', (t) => {
+  let docs = [
+    {id: 'doc1', title: 'First title'},
+    {id: 'doc2', title: 'Second title'}
+  ]
+  Object.freeze(docs)
+  Object.freeze(docs[0])
+  Object.freeze(docs[1])
+  const db = new DbdbCouch()
+
+  return db.insertMany(docs)
+
+  .then((obj) => {
+    t.pass()
+  })
+})
+
+test('db.insertMany should return clone of docs', (t) => {
+  let docs = [
+    {id: 'doc1', title: 'First title'},
+    {id: 'doc2', title: 'Second title'}
+  ]
+  const db = new DbdbCouch()
+
+  return db.insertMany(docs)
+
+  .then((obj) => {
+    t.not(obj[0], docs[0])
+    t.not(obj[1], docs[1])
+  })
+})
+
 test('db.insertMany should throw for missing docs', (t) => {
   const db = new DbdbCouch()
 
@@ -96,7 +128,7 @@ test('db.deleteMany should exist', (t) => {
   t.is(typeof db.deleteMany, 'function')
 })
 
-test('db.deleteMany should mark items as deleted', (t) => {
+test('db.deleteMany should delete items', (t) => {
   const db = new DbdbCouch()
   const docs = [
     { id: 'ent1', type: 'entry', title: 'First title' },
@@ -109,6 +141,32 @@ test('db.deleteMany should mark items as deleted', (t) => {
 
   .then((ret) => {
     t.is(db.data.size, 0)
-    t.is(ret, docs)
+    t.deepEqual(ret, docs)
+  })
+})
+
+test('db.deleteMany should not alter input docs', (t) => {
+  const db = new DbdbCouch()
+  const docs = [{id: 'ent1'}, {id: 'ent2'}]
+  Object.freeze(docs)
+  Object.freeze(docs[0])
+  Object.freeze(docs[1])
+
+  return db.deleteMany(docs)
+
+  .then((ret) => {
+    t.pass()
+  })
+})
+
+test('db.deleteMany should return clone of docs', (t) => {
+  const db = new DbdbCouch()
+  const docs = [{id: 'ent1'}, {id: 'ent2'}]
+
+  return db.deleteMany(docs)
+
+  .then((ret) => {
+    t.not(ret[0], docs[0])
+    t.not(ret[1], docs[1])
   })
 })
