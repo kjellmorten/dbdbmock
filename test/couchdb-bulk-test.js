@@ -2,10 +2,6 @@ import test from 'ava'
 
 import DbdbCouch from '../lib/couchdb'
 
-function teardownData () {
-  DbdbCouch.data.clear()
-}
-
 // Tests -- insert many
 
 test('db.insertMany should exist', (t) => {
@@ -14,7 +10,7 @@ test('db.insertMany should exist', (t) => {
   t.is(typeof db.insertMany, 'function')
 })
 
-test.serial('db.insertMany should insert new documents', (t) => {
+test('db.insertMany should insert new documents', (t) => {
   let docs = [
     { type: 'entry', title: 'First title' },
     { type: 'entry', title: 'Second title' }
@@ -33,8 +29,6 @@ test.serial('db.insertMany should insert new documents', (t) => {
 
     return db.get(obj[0].id).then((obj1) => {
       t.is(obj1.title, 'First title')
-
-      teardownData()
     })
   })
 })
@@ -60,6 +54,17 @@ test('db.insertMany should return empty array', (t) => {
   })
 })
 
+test('db.insertMany should user local storage', (t) => {
+  let docs = [{ id: 'doc1', title: 'First title' }]
+  const db = new DbdbCouch()
+
+  return db.insertMany(docs)
+
+  .then((obj) => {
+    t.false(DbdbCouch.data.has('doc1'))
+  })
+})
+
 // Tests -- delete many
 
 test('db.deleteMany should exist', (t) => {
@@ -68,21 +73,19 @@ test('db.deleteMany should exist', (t) => {
   t.is(typeof db.deleteMany, 'function')
 })
 
-test.serial('db.deleteMany should mark items as deleted', (t) => {
+test('db.deleteMany should mark items as deleted', (t) => {
+  const db = new DbdbCouch()
   const docs = [
     { id: 'ent1', type: 'entry', title: 'First title' },
     { id: 'ent2', type: 'entry', title: 'Second title' }
   ]
-  DbdbCouch.data.set('ent1', docs[0])
-  DbdbCouch.data.set('ent2', docs[1])
-  const db = new DbdbCouch()
+  db.data.set('ent1', docs[0])
+  db.data.set('ent2', docs[1])
 
   return db.deleteMany(docs)
 
   .then((ret) => {
-    t.is(DbdbCouch.data.size, 0)
+    t.is(db.data.size, 0)
     t.is(ret, docs)
-
-    teardownData()
   })
 })

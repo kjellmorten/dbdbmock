@@ -2,10 +2,6 @@ import test from 'ava'
 
 import DbdbCouch from '../lib/couchdb'
 
-function teardownData () {
-  DbdbCouch.data.clear()
-}
-
 // Tests -- insert document
 
 test('db.insert should exist', (t) => {
@@ -14,7 +10,7 @@ test('db.insert should exist', (t) => {
   t.is(typeof db.insert, 'function')
 })
 
-test.serial('db.insert should insert new document', (t) => {
+test('db.insert should insert new document', (t) => {
   const doc = {
     id: 'doc2',
     type: 'entry',
@@ -29,8 +25,6 @@ test.serial('db.insert should insert new document', (t) => {
 
     return db.get('doc2').then((newdoc) => {
       t.is(newdoc, doc)
-
-      teardownData()
     })
   })
 })
@@ -43,12 +37,10 @@ test('db.insert should insert and get id from database', (t) => {
 
   .then((obj) => {
     t.is(typeof obj.id, 'string')
-
-    teardownData()
   })
 })
 
-test('db.insert should throw for missing document object', (t) => {
+test('db.insert should reject for missing document object', (t) => {
   const db = new DbdbCouch()
 
   return db.insert()
@@ -66,7 +58,8 @@ test('db.update should exist', (t) => {
   t.is(typeof db.update, 'function')
 })
 
-test.serial('db.update should update document', (t) => {
+test('db.update should update document', (t) => {
+  const db = new DbdbCouch()
   const olddoc = {
     id: 'doc1',
     type: 'entry',
@@ -74,14 +67,13 @@ test.serial('db.update should update document', (t) => {
     descr: 'Not set in update',
     createdAt: '2015-05-23'
   }
-  DbdbCouch.data.set('doc1', olddoc)
+  db.data.set('doc1', olddoc)
   const newdoc = {
     id: 'doc1',
     type: 'entry',
     title: 'A brand new title',
     createdAt: '2015-06-01'
   }
-  const db = new DbdbCouch()
 
   return db.update(newdoc)
 
@@ -95,8 +87,6 @@ test.serial('db.update should update document', (t) => {
     return db.get('doc1')
     .then((newobj) => {
       t.deepEqual(newobj, obj)
-
-      teardownData()
     })
   })
 })
