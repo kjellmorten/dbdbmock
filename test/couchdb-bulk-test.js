@@ -33,6 +33,29 @@ test('db.insertMany should insert new documents', (t) => {
   })
 })
 
+test('db.insertMany should return conflict error for existing ids', (t) => {
+  let docs = [
+    {id: 'doc1', title: 'First title'},
+    {id: 'doc2', title: 'Second title'}
+  ]
+  const db = new DbdbCouch()
+  db.data.set('doc1', {id: 'doc1', title: 'Old title'})
+
+  return db.insertMany(docs)
+
+  .then((obj) => {
+    t.true(Array.isArray(obj))
+    t.is(obj.length, 2)
+    t.is(obj[0].id, 'doc1')
+    t.is(obj[0]._error, 'conflict')
+    t.is(obj[0]._reason, 'Document update conflict')
+    t.is(obj[0].title, 'First title')
+    t.is(obj[1].id, 'doc2')
+    t.falsy(obj[1]._error)
+    t.falsy(obj[1]._reason)
+  })
+})
+
 test('db.insertMany should throw for missing docs', (t) => {
   const db = new DbdbCouch()
 
