@@ -28,15 +28,60 @@ test('db.isMock should be true', (t) => {
   t.true(db.isMock)
 })
 
-test('DbdbCouch.data should be a Map', (t) => {
-  t.is(DbdbCouch.data.constructor.name, 'Map')
-})
-
 test('should set db.config on creation', (t) => {
   const config = {}
   const db = new DbdbCouch(config)
 
   t.is(db.config, config)
+})
+
+// Data storage
+
+test('db.data should be a Map', (t) => {
+  const db = new DbdbCouch()
+
+  t.truthy(db.data)
+  t.is(db.data.constructor.name, 'Map')
+})
+
+test('db.data should be local to each instance', (t) => {
+  const db1 = new DbdbCouch()
+  const db2 = new DbdbCouch()
+
+  db1.data.set('key1', 'value1')
+
+  t.true(db1.data.has('key1'))
+  t.false(db2.data.has('key1'))
+})
+
+test('db.data should be global when configured that way', (t) => {
+  const db1 = new DbdbCouch({globalStorage: true})
+  const db2 = new DbdbCouch({globalStorage: true})
+
+  db1.data.set('key1', 'value1')
+
+  t.true(db1.data.has('key1'))
+  t.true(db2.data.has('key1'))
+})
+
+test('DbdbCouch.data should be a Map', (t) => {
+  t.is(DbdbCouch.data.constructor.name, 'Map')
+})
+
+test('DbdbCouch.data should affect global storage', (t) => {
+  const db = new DbdbCouch({globalStorage: true})
+
+  DbdbCouch.data.set('key2', 'value2')
+
+  t.true(db.data.has('key2'))
+})
+
+test('DbdbCouch.data should not affect local storage', (t) => {
+  const db = new DbdbCouch({globalStorage: false})
+
+  DbdbCouch.data.set('key2', 'value2')
+
+  t.false(db.data.has('key2'))
 })
 
 // Tests -- database connection
