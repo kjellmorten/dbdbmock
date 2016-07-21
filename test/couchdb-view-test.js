@@ -187,3 +187,16 @@ test('db.getView should return empty array on no results', (t) => {
     t.is(obj.length, 0)
   })
 })
+
+test('db.getView should reject when view is Error', (t) => {
+  t.plan(2)
+  const db = new DbdbCouch()
+  db.data.set('view:fns:sources', new Error('Some error'))
+
+  return db.getView('fns:sources')
+
+  .catch((err) => {
+    t.truthy(err)
+    t.is(err.message, 'Some error')
+  })
+})

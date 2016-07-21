@@ -84,3 +84,16 @@ test('db.get should return null for unknown doc', (t) => {
     t.is(obj[1], null)
   })
 })
+
+test('db.get should reject when doc is Error', (t) => {
+  t.plan(2)
+  const db = new DbdbCouch()
+  db.data.set('doc1', new Error('Some error'))
+
+  return db.get('doc1')
+
+  .catch((err) => {
+    t.truthy(err)
+    t.is(err.message, 'Some error')
+  })
+})
