@@ -85,6 +85,17 @@ test('DbdbCouch.data should not affect local storage', (t) => {
   t.false(db.data.has('key2'))
 })
 
+test('should set data given on construction', (t) => {
+  const data = [['doc1', {id: 'doc1'}], ['doc2', {id: 'doc2'}]]
+
+  const db = new DbdbCouch({}, data)
+
+  t.true(db.data.has('doc1'))
+  t.is(db.data.get('doc1').id, 'doc1')
+  t.true(db.data.has('doc2'))
+  t.is(db.data.get('doc2').id, 'doc2')
+})
+
 // Tests -- database connection
 
 test('db.connect should exist', (t) => {
