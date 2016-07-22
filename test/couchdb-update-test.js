@@ -79,7 +79,7 @@ test('db.insert should reject for missing document object', (t) => {
 })
 
 test('db.insert should reject on conflict', (t) => {
-  t.plan(2)
+  t.plan(3)
   const db = new DbdbCouch()
   db.data.set('doc', {id: 'doc', title: 'Document'})
 
@@ -88,6 +88,8 @@ test('db.insert should reject on conflict', (t) => {
   .catch((err) => {
     t.truthy(err)
     t.is(err.name, 'ConflictError')
+    const doc = db.data.get('doc')
+    t.is(doc.title, 'Document')
   })
 })
 
