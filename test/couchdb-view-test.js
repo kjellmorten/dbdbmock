@@ -52,17 +52,6 @@ test('db.getView should return items', (t) => {
   })
 })
 
-test('db.getView should return items with old signature', (t) => {
-  const db = new DbdbCouch()
-  const view = setupData(db)
-
-  return db.getView('fns', 'sources')
-
-  .then((obj) => {
-    t.deepEqual(obj, view)
-  })
-})
-
 test('db.getView should return items in reversed order', (t) => {
   const db = new DbdbCouch()
   const view = setupData(db)
