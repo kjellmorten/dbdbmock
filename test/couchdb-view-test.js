@@ -1,4 +1,5 @@
 import test from 'ava'
+import sinon from 'sinon'
 
 import DbdbCouch from '../lib/couchdb'
 
@@ -24,6 +25,32 @@ function setupFilterData (db) {
       source: 'src2', _key: ['src2', 'ent2']},
     {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3',
       source: 'src1', _key: ['src1', 'ent3']}
+  ]
+  db.data.set('view:fns:entries_by_source', view)
+  return view
+}
+
+function setupStringKeyData (db) {
+  const view = [
+    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3',
+      source: 'src1', _key: 'src1'},
+    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1',
+      source: 'src2', _key: 'src2'},
+    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2',
+      source: 'src2', _key: 'src2'}
+  ]
+  db.data.set('view:fns:entries_by_source', view)
+  return view
+}
+
+function setupObjectKeyData (db) {
+  const view = [
+    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3',
+      source: 'src1', _key: {id: 'src1'}},
+    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1',
+      source: 'src2', _key: {id: 'src2'}},
+    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2',
+      source: 'src2', _key: {id: 'src2'}}
   ]
   db.data.set('view:fns:entries_by_source', view)
   return view
@@ -113,7 +140,31 @@ test('db.getView should return second page', (t) => {
   })
 })
 
-test('db.getView should start with specific key', (t) => {
+test('db.getView should start with specific string key', (t) => {
+  const db = new DbdbCouch()
+  setupStringKeyData(db)
+
+  return db.getView('fns:entries_by_source', {max: 1, firstKey: 'src2'})
+
+  .then((obj) => {
+    t.is(obj.length, 1)
+    t.is(obj[0].id, 'ent1')
+  })
+})
+
+test('db.getView should start with specific object key', (t) => {
+  const db = new DbdbCouch()
+  setupObjectKeyData(db)
+
+  return db.getView('fns:entries_by_source', {max: 1, firstKey: {id: 'src2'}})
+
+  .then((obj) => {
+    t.is(obj.length, 1)
+    t.is(obj[0].id, 'ent1')
+  })
+})
+
+test('db.getView should start with specific array key', (t) => {
   const db = new DbdbCouch()
   setupData(db)
 
@@ -125,11 +176,54 @@ test('db.getView should start with specific key', (t) => {
   })
 })
 
+test('db.getView should return empty results when key not found', (t) => {
+  const db = new DbdbCouch()
+  setupStringKeyData(db)
+
+  return db.getView('fns:entries_by_source', {max: 1, firstKey: 'src3'})
+
+  .then((obj) => {
+    t.is(obj.length, 0)
+  })
+})
+
+test('db.getView should filter results by string key', (t) => {
+  const db = new DbdbCouch()
+  setupStringKeyData(db)
+
+  return db.getView('fns:entries_by_source', {filter: 'src2'})
+
+  .then((obj) => {
+    t.true(Array.isArray(obj))
+    t.is(obj.length, 2)
+    t.is(obj[0].id, 'ent1')
+    t.is(obj[0].source, 'src2')
+    t.is(obj[1].id, 'ent2')
+    t.is(obj[1].source, 'src2')
+  })
+})
+
+test('db.getView should filter results by object key', (t) => {
+  const db = new DbdbCouch()
+  setupObjectKeyData(db)
+
+  return db.getView('fns:entries_by_source', {filter: {id: 'src2'}})
+
+  .then((obj) => {
+    t.true(Array.isArray(obj))
+    t.is(obj.length, 2)
+    t.is(obj[0].id, 'ent1')
+    t.is(obj[0].source, 'src2')
+    t.is(obj[1].id, 'ent2')
+    t.is(obj[1].source, 'src2')
+  })
+})
+
 test('db.getView should filter results by array key', (t) => {
   const db = new DbdbCouch()
   setupFilterData(db)
 
-  return db.getView('fns:entries_by_source', {filter: 'src2'})
+  return db.getView('fns:entries_by_source', {filter: ['src2']})
 
   .then((obj) => {
     t.true(Array.isArray(obj))
@@ -145,7 +239,7 @@ test('db.getView should filter results by two level key', (t) => {
   const db = new DbdbCouch()
   setupFilterData(db)
 
-  return db.getView('fns:entries_by_source', {filter: 'src2/ent2'})
+  return db.getView('fns:entries_by_source', {filter: ['src2', 'ent2']})
 
   .then((obj) => {
     t.true(Array.isArray(obj))
@@ -159,11 +253,26 @@ test('db.getView should filter and start with specific key', (t) => {
   setupFilterAndKeyData(db)
 
   return db.getView('fns:entries_by_feed', {max: 1,
-    filter: 'account2/feed2', firstKey: ['2015-05-24T00:00:00.000Z', 'ent2']})
+    filter: ['account2', 'feed2'], firstKey: ['2015-05-24T00:00:00.000Z', 'ent2']})
 
   .then((obj) => {
     t.is(obj.length, 1)
     t.is(obj[0].id, 'ent2')
+  })
+})
+
+test('db.getView should warn when filtering by string and start with specific key', (t) => {
+  const db = new DbdbCouch()
+  sinon.stub(console, 'warn')
+
+  return db.getView('fns:entries_by_feed', {max: 1,
+    filter: 'account2', firstKey: ['2015-05-24T00:00:00.000Z', 'ent2']})
+
+  .then((obj) => {
+    t.true(console.warn.calledOnce)
+    t.is(obj.length, 0)
+
+    console.warn.restore()
   })
 })
 
