@@ -80,7 +80,7 @@ test('db.getView should return paged view', (t) => {
   const db = new DbdbCouch()
   setupData(db)
 
-  return db.getView('fns:sources', {pageSize: 1})
+  return db.getView('fns:sources', {max: 1})
 
   .then((ret) => {
     t.is(ret.length, 1)
@@ -92,7 +92,7 @@ test('db.getView should return second page', (t) => {
   const db = new DbdbCouch()
   setupData(db)
 
-  return db.getView('fns:sources', {pageSize: 1, pageStart: 1})
+  return db.getView('fns:sources', {max: 1, first: 1})
 
   .then((obj) => {
     t.is(obj.length, 1)
@@ -104,7 +104,7 @@ test('db.getView should start after specific key', (t) => {
   const db = new DbdbCouch()
   setupData(db)
 
-  return db.getView('fns:sources', {pageSize: 1, pageStart: [ '2015-05-23T00:00:00.000Z', 'src1' ]})
+  return db.getView('fns:sources', {max: 1, first: [ '2015-05-23T00:00:00.000Z', 'src1' ]})
 
   .then((obj) => {
     t.is(obj.length, 1)
