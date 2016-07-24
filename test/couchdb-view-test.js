@@ -5,9 +5,9 @@ import DbdbCouch from '../lib/couchdb'
 function setupData (db) {
   const view = [
     {id: 'src1', type: 'source', name: 'Source 1', url: 'http://source1.com',
-      _key: [ '2015-05-23T00:00:00.000Z', 'src1' ]},
+      _key: ['2015-05-23T00:00:00.000Z', 'src1']},
     {id: 'src2', type: 'source', name: 'Source 2', url: 'http://source2.com',
-      _key: [ '2015-05-24T00:00:00.000Z', 'src2' ]}
+      _key: ['2015-05-24T00:00:00.000Z', 'src2']}
   ]
   Object.freeze(view)
   Object.freeze(view[0])
@@ -16,16 +16,29 @@ function setupData (db) {
   return view
 }
 
-function setupFnsEntriesBySource (db) {
+function setupFilterData (db) {
   const view = [
-    { id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1',
-      source: 'src2', _key: [ 'src2', 'ent1' ] },
-    { id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2',
-      source: 'src2', _key: [ 'src2', 'ent2' ] },
-    { id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3',
-      source: 'src1', _key: [ 'src1', 'ent3' ] }
+    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1',
+      source: 'src2', _key: ['src2', 'ent1']},
+    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2',
+      source: 'src2', _key: ['src2', 'ent2']},
+    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3',
+      source: 'src1', _key: ['src1', 'ent3']}
   ]
   db.data.set('view:fns:entries_by_source', view)
+  return view
+}
+
+function setupFilterAndKeyData (db) {
+  const view = [
+    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1',
+      source: 'src2', _key: ['account1', 'feed1', '2015-05-23T00:00:00.000Z', 'ent1']},
+    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2',
+      source: 'src2', _key: ['account2', 'feed2', '2015-05-24T00:00:00.000Z', 'ent2']},
+    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3',
+      source: 'src1', _key: ['account2', 'feed3', '2015-05-24T00:00:00.000Z', 'ent3']}
+  ]
+  db.data.set('view:fns:entries_by_feed', view)
   return view
 }
 
@@ -100,11 +113,11 @@ test('db.getView should return second page', (t) => {
   })
 })
 
-test('db.getView should start after specific key', (t) => {
+test('db.getView should start with specific key', (t) => {
   const db = new DbdbCouch()
   setupData(db)
 
-  return db.getView('fns:sources', {max: 1, first: [ '2015-05-23T00:00:00.000Z', 'src1' ]})
+  return db.getView('fns:sources', {max: 1, firstKey: ['2015-05-24T00:00:00.000Z', 'src2']})
 
   .then((obj) => {
     t.is(obj.length, 1)
@@ -112,9 +125,9 @@ test('db.getView should start after specific key', (t) => {
   })
 })
 
-test('db.getView should filter results by key', (t) => {
+test('db.getView should filter results by array key', (t) => {
   const db = new DbdbCouch()
-  setupFnsEntriesBySource(db)
+  setupFilterData(db)
 
   return db.getView('fns:entries_by_source', {filter: 'src2'})
 
@@ -130,12 +143,25 @@ test('db.getView should filter results by key', (t) => {
 
 test('db.getView should filter results by two level key', (t) => {
   const db = new DbdbCouch()
-  setupFnsEntriesBySource(db)
+  setupFilterData(db)
 
   return db.getView('fns:entries_by_source', {filter: 'src2/ent2'})
 
   .then((obj) => {
     t.true(Array.isArray(obj))
+    t.is(obj.length, 1)
+    t.is(obj[0].id, 'ent2')
+  })
+})
+
+test('db.getView should filter and start with specific key', (t) => {
+  const db = new DbdbCouch()
+  setupFilterAndKeyData(db)
+
+  return db.getView('fns:entries_by_feed', {max: 1,
+    filter: 'account2/feed2', firstKey: ['2015-05-24T00:00:00.000Z', 'ent2']})
+
+  .then((obj) => {
     t.is(obj.length, 1)
     t.is(obj[0].id, 'ent2')
   })
