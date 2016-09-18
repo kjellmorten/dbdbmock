@@ -24,7 +24,9 @@ function setupFilterData (db) {
     {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2',
       source: 'src2', _key: ['src2', 'ent2']},
     {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3',
-      source: 'src1', _key: ['src1', 'ent3']}
+      source: 'src1', _key: ['src1', 'ent3']},
+    {id: 'ent4', type: 'entry', title: 'Entry 4', url: 'http://source12.com/ent4',
+      source: 'src12', _key: ['src1/2', 'ent3']}
   ]
   db.data.set('view:fns:entries_by_source', view)
   return view
@@ -232,6 +234,20 @@ test('db.getView should filter results by array key', (t) => {
     t.is(obj[0].source, 'src2')
     t.is(obj[1].id, 'ent2')
     t.is(obj[1].source, 'src2')
+  })
+})
+
+test('db.getView should filter results by array key with slash', (t) => {
+  const db = new DbdbCouch()
+  setupFilterData(db)
+
+  return db.getView('fns:entries_by_source', {filter: ['src1/2']})
+
+  .then((obj) => {
+    t.true(Array.isArray(obj))
+    t.is(obj.length, 1)
+    t.is(obj[0].id, 'ent4')
+    t.is(obj[0].source, 'src12')
   })
 })
 
