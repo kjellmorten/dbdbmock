@@ -292,6 +292,22 @@ test('db.getView should warn when filtering by string and start with specific ke
   })
 })
 
+test('db.getView should return keys only', (t) => {
+  const db = new DbdbCouch()
+  setupData(db)
+
+  return db.getView('fns:sources', {keysOnly: true})
+
+  .then((obj) => {
+    t.is(obj.length, 2)
+    t.truthy(obj[0].id)
+    t.truthy(obj[0].type)
+    t.truthy(obj[0]._key)
+    t.is(obj[0].name, undefined)
+    t.is(obj[0].url, undefined)
+  })
+})
+
 test('db.getView should not alter options object', (t) => {
   const db = new DbdbCouch()
   setupData(db)
@@ -300,7 +316,7 @@ test('db.getView should not alter options object', (t) => {
 
   return db.getView('fns:sources', options)
 
-  .then((ret) => {
+  .then((obj) => {
     t.pass()
   })
 })
