@@ -16,8 +16,8 @@ function setupFilterData (db) {
   const view = [
     {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1', source: 'src2', _key: ['src2', 'ent1']},
     {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2', source: 'src2', _key: ['src2', 'ent2']},
-    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3', source: 'src1', _key: ['src1', 'ent3']},
-    {id: 'ent4', type: 'entry', title: 'Entry 4', url: 'http://source12.com/ent4', source: 'src12', _key: ['src1/2', 'ent3']}
+    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3', source: 'src1', _key: ['src3', 'ent3']},
+    {id: 'ent4', type: 'entry', title: 'Entry 4', url: 'http://source12.com/ent4', source: 'src32', _key: ['src3/2', 'ent3']}
   ]
   db.data.set('view:fns:entries_by_source', view)
   return view
@@ -26,8 +26,8 @@ function setupFilterData (db) {
 function setupStringKeyData (db) {
   const view = [
     {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3', source: 'src1', _key: 'src1'},
-    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1', source: 'src2', _key: 'src2'},
-    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2', source: 'src2', _key: 'src2'}
+    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1', source: 'src3', _key: 'src3'},
+    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2', source: 'src3', _key: 'src3'}
   ]
   db.data.set('view:fns:entries_by_source', view)
   return view
@@ -128,11 +128,35 @@ test('db.getView should start with specific string key', (t) => {
   const db = new DbdbCouch()
   setupStringKeyData(db)
 
+  return db.getView('fns:entries_by_source', {firstKey: 'src3'})
+
+  .then((obj) => {
+    t.is(obj.length, 2)
+    t.is(obj[0].id, 'ent1')
+  })
+})
+
+test('db.getView should start with the first key larger than an unknown one', (t) => {
+  const db = new DbdbCouch()
+  setupStringKeyData(db)
+
   return db.getView('fns:entries_by_source', {firstKey: 'src2'})
 
   .then((obj) => {
     t.is(obj.length, 2)
     t.is(obj[0].id, 'ent1')
+  })
+})
+
+test('db.getView should start with the first key larger than an unknown one descending', (t) => {
+  const db = new DbdbCouch()
+  setupStringKeyData(db)
+
+  return db.getView('fns:entries_by_source', {firstKey: 'src2', desc: true})
+
+  .then((obj) => {
+    t.is(obj.length, 1)
+    t.is(obj[0].id, 'ent3')
   })
 })
 
@@ -172,6 +196,30 @@ test('db.getView should end with specific string key', (t) => {
   })
 })
 
+test('db.getView should end with last key smaller than an unknown one', (t) => {
+  const db = new DbdbCouch()
+  setupStringKeyData(db)
+
+  return db.getView('fns:entries_by_source', {lastKey: 'src2'})
+
+  .then((obj) => {
+    t.is(obj.length, 1)
+    t.is(obj[0].id, 'ent3')
+  })
+})
+
+test('db.getView should end with last key smaller than an unknown one descending', (t) => {
+  const db = new DbdbCouch()
+  setupStringKeyData(db)
+
+  return db.getView('fns:entries_by_source', {lastKey: 'src2', desc: true})
+
+  .then((obj) => {
+    t.is(obj.length, 2)
+    t.is(obj[0].id, 'ent2')
+  })
+})
+
 test('db.getView should end with specific array key', (t) => {
   const db = new DbdbCouch()
   setupData(db)
@@ -188,7 +236,7 @@ test('db.getView should honor max when firstKey and lastKey returns more', (t) =
   const db = new DbdbCouch()
   setupFilterData(db)
 
-  return db.getView('fns:entries_by_source', {max: 2, firstKey: ['src2', 'ent1'], lastKey: ['src1', 'ent3']})
+  return db.getView('fns:entries_by_source', {max: 2, firstKey: ['src2', 'ent1'], lastKey: ['src3', 'ent3']})
 
   .then((obj) => {
     t.is(obj.length, 2)
@@ -208,25 +256,69 @@ test('db.getView should honor lastKey when max returns more', (t) => {
   })
 })
 
-test('db.getView should return empty results when first key not found', (t) => {
+test('db.getView should return empty results when first key is after key of last item', (t) => {
   const db = new DbdbCouch()
   setupStringKeyData(db)
 
-  return db.getView('fns:entries_by_source', {max: 1, firstKey: 'src3'})
+  return db.getView('fns:entries_by_source', {firstKey: 'src9'})
 
   .then((obj) => {
     t.is(obj.length, 0)
   })
 })
 
-test('db.getView should return empty results when last key not found', (t) => {
+test('db.getView should return all results when first key is before key of first item', (t) => {
   const db = new DbdbCouch()
   setupStringKeyData(db)
 
-  return db.getView('fns:entries_by_source', {max: 1, lastKey: 'src3'})
+  return db.getView('fns:entries_by_source', {firstKey: 'src0'})
+
+  .then((obj) => {
+    t.is(obj.length, 3)
+  })
+})
+
+test('db.getView should return empty results when last key is before key of first item', (t) => {
+  const db = new DbdbCouch()
+  setupStringKeyData(db)
+
+  return db.getView('fns:entries_by_source', {lastKey: 'src0'})
 
   .then((obj) => {
     t.is(obj.length, 0)
+  })
+})
+
+test('db.getView should return all results when last key is after key of last item', (t) => {
+  const db = new DbdbCouch()
+  setupStringKeyData(db)
+
+  return db.getView('fns:entries_by_source', {lastKey: 'src9'})
+
+  .then((obj) => {
+    t.is(obj.length, 3)
+  })
+})
+
+test('db.getView should return all results when first key is before and last key is after', (t) => {
+  const db = new DbdbCouch()
+  setupStringKeyData(db)
+
+  return db.getView('fns:entries_by_source', {firstKey: 'src0', lastKey: 'src9'})
+
+  .then((obj) => {
+    t.is(obj.length, 3)
+  })
+})
+
+test('db.getView should return all results when descending and first key is after and last key is before', (t) => {
+  const db = new DbdbCouch()
+  setupStringKeyData(db)
+
+  return db.getView('fns:entries_by_source', {firstKey: 'src9', lastKey: 'src0', desc: true})
+
+  .then((obj) => {
+    t.is(obj.length, 3)
   })
 })
 
@@ -234,15 +326,15 @@ test('db.getView should filter results by string key', (t) => {
   const db = new DbdbCouch()
   setupStringKeyData(db)
 
-  return db.getView('fns:entries_by_source', {filter: 'src2'})
+  return db.getView('fns:entries_by_source', {filter: 'src3'})
 
   .then((obj) => {
     t.true(Array.isArray(obj))
     t.is(obj.length, 2)
     t.is(obj[0].id, 'ent1')
-    t.is(obj[0].source, 'src2')
+    t.is(obj[0].source, 'src3')
     t.is(obj[1].id, 'ent2')
-    t.is(obj[1].source, 'src2')
+    t.is(obj[1].source, 'src3')
   })
 })
 
@@ -282,13 +374,13 @@ test('db.getView should filter results by array key with slash', (t) => {
   const db = new DbdbCouch()
   setupFilterData(db)
 
-  return db.getView('fns:entries_by_source', {filter: ['src1/2']})
+  return db.getView('fns:entries_by_source', {filter: ['src3/2']})
 
   .then((obj) => {
     t.true(Array.isArray(obj))
     t.is(obj.length, 1)
     t.is(obj[0].id, 'ent4')
-    t.is(obj[0].source, 'src12')
+    t.is(obj[0].source, 'src32')
   })
 })
 
