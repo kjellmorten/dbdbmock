@@ -4,15 +4,10 @@ import sinon from 'sinon'
 import DbdbCouch from '../lib/couchdb'
 
 function setupData (db) {
-  const view = [
-    {id: 'src1', type: 'source', name: 'Source 1', url: 'http://source1.com',
-      _key: ['2015-05-23T00:00:00.000Z', 'src1']},
-    {id: 'src2', type: 'source', name: 'Source 2', url: 'http://source2.com',
-      _key: ['2015-05-24T00:00:00.000Z', 'src2']}
-  ]
-  Object.freeze(view)
-  Object.freeze(view[0])
-  Object.freeze(view[1])
+  const view = Object.freeze([
+    Object.freeze({id: 'src1', type: 'source', name: 'Source 1', url: 'http://source1.com', _key: ['2015-05-23T00:00:00.000Z', 'src1']}),
+    Object.freeze({id: 'src2', type: 'source', name: 'Source 2', url: 'http://source2.com', _key: ['2015-05-24T00:00:00.000Z', 'src2']})
+  ])
   db.data.set('view:fns:sources', view)
   return view
 }
@@ -146,10 +141,10 @@ test('db.getView should start with specific string key', (t) => {
   const db = new DbdbCouch()
   setupStringKeyData(db)
 
-  return db.getView('fns:entries_by_source', {max: 1, firstKey: 'src2'})
+  return db.getView('fns:entries_by_source', {firstKey: 'src2'})
 
   .then((obj) => {
-    t.is(obj.length, 1)
+    t.is(obj.length, 2)
     t.is(obj[0].id, 'ent1')
   })
 })
@@ -158,10 +153,10 @@ test('db.getView should start with specific object key', (t) => {
   const db = new DbdbCouch()
   setupObjectKeyData(db)
 
-  return db.getView('fns:entries_by_source', {max: 1, firstKey: {id: 'src2'}})
+  return db.getView('fns:entries_by_source', {firstKey: {id: 'src2'}})
 
   .then((obj) => {
-    t.is(obj.length, 1)
+    t.is(obj.length, 2)
     t.is(obj[0].id, 'ent1')
   })
 })
@@ -170,7 +165,7 @@ test('db.getView should start with specific array key', (t) => {
   const db = new DbdbCouch()
   setupData(db)
 
-  return db.getView('fns:sources', {max: 1, firstKey: ['2015-05-24T00:00:00.000Z', 'src2']})
+  return db.getView('fns:sources', {firstKey: ['2015-05-24T00:00:00.000Z', 'src2']})
 
   .then((obj) => {
     t.is(obj.length, 1)
@@ -178,11 +173,70 @@ test('db.getView should start with specific array key', (t) => {
   })
 })
 
-test('db.getView should return empty results when key not found', (t) => {
+test('db.getView should end with specific string key', (t) => {
+  const db = new DbdbCouch()
+  setupStringKeyData(db)
+
+  return db.getView('fns:entries_by_source', {lastKey: 'src1'})
+
+  .then((obj) => {
+    t.is(obj.length, 1)
+    t.is(obj[0].id, 'ent3')
+  })
+})
+
+test('db.getView should end with specific array key', (t) => {
+  const db = new DbdbCouch()
+  setupData(db)
+
+  return db.getView('fns:sources', {lastKey: ['2015-05-23T00:00:00.000Z', 'src1']})
+
+  .then((obj) => {
+    t.is(obj.length, 1)
+    t.is(obj[0].id, 'src1')
+  })
+})
+
+test('db.getView should honor max when firstKey and lastKey returns more', (t) => {
+  const db = new DbdbCouch()
+  setupFilterData(db)
+
+  return db.getView('fns:entries_by_source', {max: 2, firstKey: ['src2', 'ent1'], lastKey: ['src1', 'ent3']})
+
+  .then((obj) => {
+    t.is(obj.length, 2)
+    t.is(obj[1].id, 'ent2')
+  })
+})
+
+test('db.getView should honor lastKey when max returns more', (t) => {
+  const db = new DbdbCouch()
+  setupFilterData(db)
+
+  return db.getView('fns:entries_by_source', {max: 3, firstKey: ['src2', 'ent1'], lastKey: ['src2', 'ent2']})
+
+  .then((obj) => {
+    t.is(obj.length, 2)
+    t.is(obj[1].id, 'ent2')
+  })
+})
+
+test('db.getView should return empty results when first key not found', (t) => {
   const db = new DbdbCouch()
   setupStringKeyData(db)
 
   return db.getView('fns:entries_by_source', {max: 1, firstKey: 'src3'})
+
+  .then((obj) => {
+    t.is(obj.length, 0)
+  })
+})
+
+test('db.getView should return empty results when last key not found', (t) => {
+  const db = new DbdbCouch()
+  setupStringKeyData(db)
+
+  return db.getView('fns:entries_by_source', {max: 1, lastKey: 'src3'})
 
   .then((obj) => {
     t.is(obj.length, 0)
