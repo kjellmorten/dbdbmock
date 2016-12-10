@@ -14,14 +14,10 @@ function setupData (db) {
 
 function setupFilterData (db) {
   const view = [
-    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1',
-      source: 'src2', _key: ['src2', 'ent1']},
-    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2',
-      source: 'src2', _key: ['src2', 'ent2']},
-    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3',
-      source: 'src1', _key: ['src1', 'ent3']},
-    {id: 'ent4', type: 'entry', title: 'Entry 4', url: 'http://source12.com/ent4',
-      source: 'src12', _key: ['src1/2', 'ent3']}
+    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1', source: 'src2', _key: ['src2', 'ent1']},
+    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2', source: 'src2', _key: ['src2', 'ent2']},
+    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3', source: 'src1', _key: ['src1', 'ent3']},
+    {id: 'ent4', type: 'entry', title: 'Entry 4', url: 'http://source12.com/ent4', source: 'src12', _key: ['src1/2', 'ent3']}
   ]
   db.data.set('view:fns:entries_by_source', view)
   return view
@@ -29,12 +25,9 @@ function setupFilterData (db) {
 
 function setupStringKeyData (db) {
   const view = [
-    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3',
-      source: 'src1', _key: 'src1'},
-    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1',
-      source: 'src2', _key: 'src2'},
-    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2',
-      source: 'src2', _key: 'src2'}
+    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3', source: 'src1', _key: 'src1'},
+    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1', source: 'src2', _key: 'src2'},
+    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2', source: 'src2', _key: 'src2'}
   ]
   db.data.set('view:fns:entries_by_source', view)
   return view
@@ -42,12 +35,9 @@ function setupStringKeyData (db) {
 
 function setupObjectKeyData (db) {
   const view = [
-    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3',
-      source: 'src1', _key: {id: 'src1'}},
-    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1',
-      source: 'src2', _key: {id: 'src2'}},
-    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2',
-      source: 'src2', _key: {id: 'src2'}}
+    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3', source: 'src1', _key: {id: 'src1'}},
+    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1', source: 'src2', _key: {id: 'src2'}},
+    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2', source: 'src2', _key: {id: 'src2'}}
   ]
   db.data.set('view:fns:entries_by_source', view)
   return view
@@ -55,12 +45,9 @@ function setupObjectKeyData (db) {
 
 function setupFilterAndKeyData (db) {
   const view = [
-    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1',
-      source: 'src2', _key: ['account1', 'feed1', '2015-05-23T00:00:00.000Z', 'ent1']},
-    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2',
-      source: 'src2', _key: ['account2', 'feed2', '2015-05-24T00:00:00.000Z', 'ent2']},
-    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3',
-      source: 'src1', _key: ['account2', 'feed3', '2015-05-24T00:00:00.000Z', 'ent3']}
+    {id: 'ent1', type: 'entry', title: 'Entry 1', url: 'http://source2.com/ent1', source: 'src2', _key: ['account1', 'feed1', '2015-05-23T00:00:00.000Z', 'ent1']},
+    {id: 'ent2', type: 'entry', title: 'Entry 2', url: 'http://source2.com/ent2', source: 'src2', _key: ['account2', 'feed2', '2015-05-24T00:00:00.000Z', 'ent2']},
+    {id: 'ent3', type: 'entry', title: 'Entry 3', url: 'http://source1.com/ent3', source: 'src1', _key: ['account2', 'feed3', '2015-05-24T00:00:00.000Z', 'ent3']}
   ]
   db.data.set('view:fns:entries_by_feed', view)
   return view
@@ -322,8 +309,7 @@ test('db.getView should filter and start with specific key', (t) => {
   const db = new DbdbCouch()
   setupFilterAndKeyData(db)
 
-  return db.getView('fns:entries_by_feed', {max: 1,
-    filter: ['account2', 'feed2'], firstKey: ['2015-05-24T00:00:00.000Z', 'ent2']})
+  return db.getView('fns:entries_by_feed', {max: 1, filter: ['account2', 'feed2'], firstKey: ['2015-05-24T00:00:00.000Z', 'ent2']})
 
   .then((obj) => {
     t.is(obj.length, 1)
@@ -335,8 +321,7 @@ test('db.getView should warn when filtering by string and start with specific ke
   const db = new DbdbCouch()
   sinon.stub(console, 'warn')
 
-  return db.getView('fns:entries_by_feed', {max: 1,
-    filter: 'account2', firstKey: ['2015-05-24T00:00:00.000Z', 'ent2']})
+  return db.getView('fns:entries_by_feed', {max: 1, filter: 'account2', firstKey: ['2015-05-24T00:00:00.000Z', 'ent2']})
 
   .then((obj) => {
     t.true(console.warn.calledOnce)
